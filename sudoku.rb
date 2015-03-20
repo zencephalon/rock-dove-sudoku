@@ -17,6 +17,10 @@ class Sudoku
     @board.flatten.select(&:solved?).size == SIZE ** 4
   end
 
+  def solve!
+    constrain!
+  end
+
   def constrain!
     until (unused_cells = usable_cells).empty?
       unused_cells.each do |cell|
