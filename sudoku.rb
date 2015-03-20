@@ -11,8 +11,22 @@ class Sudoku
     end
   end
 
+  def constrain!
+    until (unused_cells = usable_cells).empty?
+      unused_cells.each do |cell|
+        cell.affected_coords do |row, col|
+          @board[row][col].mark(cell.num)
+        end
+      end
+    end
+  end
+
   def to_s
     @board.map {|row| row.map(&:to_s).join(" ")}.join("\n")
+  end
+
+  def usable_cells
+    @board.flatten.select(&:usable?)
   end
 
   def each_coord
