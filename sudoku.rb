@@ -9,7 +9,7 @@ class Sudoku
     cells = board_str.split('')
 
     each_coord do |row, col|
-      @board[row][col] = Cell.new(cells.shift.to_i, row, col)
+      @board[row][col] = Cell.new(cells.shift.to_i, row, col, @board)
     end
   end
 
@@ -17,17 +17,32 @@ class Sudoku
     @board.flatten.select(&:solved?).size == SIZE ** 4
   end
 
+  def unsolved_cells
+    @board.flatten.select {|c| !c.solved?}
+  end
+
   def solve!
     constrain!
+    solve_recursive!
+  end
+
+  def solve_recursive!
+    return true if solved?
+    cell = unsolved_cells.first
+
+    cell.open.each do |num|
+      cell.try!(num) do
+        return true if solved?
+        return false if any_broken?
+        solve_recursive!
+      end
+    end
   end
 
   def constrain!
     until (unused_cells = usable_cells).empty?
       unused_cells.each do |cell|
-        cell.affected_coords.each do |row, col|
-          @board[row][col].mark(cell.num)
-        end
-        cell.used = true
+        cell.mark_affected(@board)
       end
     end
   end
@@ -51,17 +66,36 @@ class Sudoku
       end
     end
   end
+
+  def any_broken?
+    @board.flatten.any?(&:broken?)
+  end
 end
 
 class Cell
   attr_reader :num
-  attr_accessor :used
+  attr_accessor :used, :open
 
-  def initialize(num, row, col)
+  def initialize(num, row, col, board)
     @row, @col = row, col
+    @board = board
     @num = num == 0 ? nil : num
     @open = @num ? [] : (1..9).to_a
     @used = false
+  end
+
+  def try!(guess)
+    @open.delete(guess)
+    @num = guess
+    affected_coords.each do |row, col|
+      @board[row][col].mark!(@num)
+    end
+
+    yield
+
+    affected_coords.each do |row, col|
+      @board[row][col].unmark!(@num)
+    end
   end
 
   def column
@@ -86,9 +120,24 @@ class Cell
     column + row + square
   end
 
-  def mark(n)
+  def unmark!(n)
+    @open.push(n)
+  end
+
+  def mark!(n)
     @open.delete(n)
+  end
+
+  def mark_and_set!(n)
+    mark!(n)
     @num = @open.pop if @open.size == 1
+  end
+
+  def mark_affected(board)
+    affected_coords.each do |row, col|
+      board[row][col].mark_and_set!(@num)
+    end
+    @used = true
   end
 
   def usable?
@@ -97,6 +146,10 @@ class Cell
 
   def solved?
     !! @num
+  end
+
+  def broken?
+    !@num && @open.empty?
   end
 
   def to_s
