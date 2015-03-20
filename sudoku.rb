@@ -13,6 +13,10 @@ class Sudoku
     end
   end
 
+  def solved?
+    @board.flatten.select(&:solved?).size == SIZE ** 4
+  end
+
   def constrain!
     until (unused_cells = usable_cells).empty?
       unused_cells.each do |cell|
@@ -26,6 +30,10 @@ class Sudoku
 
   def to_s
     @board.map {|row| row.map(&:to_s).join(" ")}.join("\n")
+  end
+
+  def to_compact_s
+    @board.map {|row| row.map(&:to_s).join("")}.join("")
   end
 
   def usable_cells
@@ -81,6 +89,10 @@ class Cell
 
   def usable?
     !@used && @num
+  end
+
+  def solved?
+    !! @num
   end
 
   def to_s
