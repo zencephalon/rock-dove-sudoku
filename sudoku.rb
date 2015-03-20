@@ -2,6 +2,8 @@ class Sudoku
   SIZE = 3
   END_INDEX = SIZE * SIZE - 1
 
+  attr_reader :board
+
   def initialize(board_str)
     @board = Array.new(SIZE * SIZE) { Array.new(SIZE * SIZE) {[]} }
     cells = board_str.split('')
@@ -14,9 +16,10 @@ class Sudoku
   def constrain!
     until (unused_cells = usable_cells).empty?
       unused_cells.each do |cell|
-        cell.affected_coords do |row, col|
+        cell.affected_coords.each do |row, col|
           @board[row][col].mark(cell.num)
         end
+        cell.used = true
       end
     end
   end
