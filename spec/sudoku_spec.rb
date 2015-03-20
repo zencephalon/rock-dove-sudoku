@@ -13,8 +13,15 @@ describe Sudoku do
     expect(easy_board.to_compact_s).to eq(EASY_BOARD.gsub('-','0'))
   end
 
-  it "should identify solved boards" do
-    expect(solved_board.solved?).to eq(true)
+  it "should handle valid sets" do
+    expect(easy_board.valid_set?([1,2,3,4,5,6,7,0,0])).to eq(true)
+    expect(easy_board.valid_set?([1,2,4,4,5,6,7,0,0])).to eq(false)
+  end
+
+  it "should identify valid boards" do
+    expect(solved_board.valid?).to eq(true)
+    expect(easy_board.valid?).to eq(true)
+    expect(hard_board.valid?).to eq(true)
   end
 
   it "should solve easy boards" do
