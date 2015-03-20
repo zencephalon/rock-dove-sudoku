@@ -14,7 +14,9 @@ class Sudoku
   end
 
   def solved?
-    @board.flatten.select(&:solved?).size == SIZE ** 4
+    s = @board.flatten.select(&:solved?).size == SIZE ** 4
+    puts "SOLVED BOARD" if s
+    s
   end
 
   def unsolved_cells
@@ -23,18 +25,19 @@ class Sudoku
 
   def solve!
     constrain!
-    solve_recursive!
+    solve_recursive!(0)
   end
 
-  def solve_recursive!
+  def solve_recursive!(level)
     return true if solved?
     cell = unsolved_cells.first
+    puts "#{level} Found #{cell.to_debug_s}"
 
-    cell.open.each do |num|
+    cell.open.any? do |num|
       cell.try!(num) do
-        return true if solved?
-        return false if any_broken?
-        solve_recursive!
+        break true if solved?
+        break false if any_broken?
+        solve_recursive!(level+1)
       end
     end
   end
@@ -68,7 +71,9 @@ class Sudoku
   end
 
   def any_broken?
-    @board.flatten.any?(&:broken?)
+    b = @board.flatten.any?(&:broken?)
+    puts "BROKEN BOARD" if b
+    b
   end
 end
 
@@ -85,17 +90,20 @@ class Cell
   end
 
   def try!(guess)
+    puts "Trying #{guess} on #{self.to_debug_s}"
     @open.delete(guess)
     @num = guess
     affected_coords.each do |row, col|
       @board[row][col].mark!(@num)
     end
 
-    yield
+    val = yield
 
     affected_coords.each do |row, col|
       @board[row][col].unmark!(@num)
     end
+
+    val
   end
 
   def column
@@ -154,5 +162,9 @@ class Cell
 
   def to_s
     @num ? @num.to_s : '-'
+  end
+
+  def to_debug_s
+    "#{@row},#{@col} open: #{@open}"
   end
 end

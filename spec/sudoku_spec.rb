@@ -24,6 +24,7 @@ describe Sudoku do
 
   it "should solve hard boards" do
     hard_board.solve!
+    puts hard_board
     expect(hard_board.solved?).to eq(true)
   end
 end
