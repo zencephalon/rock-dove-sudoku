@@ -10,7 +10,7 @@ describe Sudoku do
   let(:hard_board) { Sudoku.new(HARD_BOARD) }
 
   it "should read input boards" do
-    expect(easy_board.to_compact_s).to eq(EASY_BOARD)
+    expect(easy_board.to_compact_s).to eq(EASY_BOARD.gsub('-','0'))
   end
 
   it "should identify solved boards" do
