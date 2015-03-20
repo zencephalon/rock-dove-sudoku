@@ -13,6 +13,29 @@ class Sudoku
     end
   end
 
+  def solve
+    return false if ! valid?
+
+    row, col = first_empty
+
+    return true if row.nil?
+
+    (1..9).each do |num|
+      @board[row][col] = num
+      return true if solve
+    end
+    board[row][col] = 0
+    return false
+  end
+
+
+  def first_empty
+    each_coord do |row, col|
+      return [row, col] if @board[row][col] == 0 
+    end
+    return nil
+  end
+
   def column_set(col)
     (0..END_INDEX).map do |row|
       @board[row][col]
