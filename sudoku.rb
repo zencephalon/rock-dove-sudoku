@@ -52,6 +52,28 @@ class Cell
     @used = false
   end
 
+  def column
+    (0..8).map {|col| [@row, col]}
+  end
+
+  def row
+    (0..8).map {|row| [row, @col]}
+  end
+
+  def square
+    row_corner = (@row / 3) * 3
+    col_corner = (@col / 3) * 3
+    (row_corner..(row_corner + 2)).map do |row|
+      (col_corner..(col_corner + 2)).map do |col|
+        [row, col]
+      end
+    end.flatten(1)
+  end
+
+  def affected_coords
+    column + row + square
+  end
+
   def mark(n)
     @open.delete(n)
     @num = @open.pop if @open.size == 1
