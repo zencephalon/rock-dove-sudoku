@@ -1,6 +1,6 @@
 class Sudoku
   SIZE = 3
-  END_INDEX = SIZE * SIZE - 1
+  END_INDEX = SIZE * SIZE
 
   attr_reader :board
 
@@ -37,13 +37,13 @@ class Sudoku
   end
 
   def column_set(col)
-    (0..END_INDEX).map do |row|
+    (0...END_INDEX).map do |row|
       @board[row][col]
     end
   end
 
   def row_set(row)
-    (0..END_INDEX).map do |col|
+    (0...END_INDEX).map do |col|
       @board[row][col]
     end
   end
@@ -64,11 +64,11 @@ class Sudoku
   end
 
   def valid_columns?
-    (0..END_INDEX).all? {|col| valid_set?(column_set(col))}
+    (0...END_INDEX).all? {|col| valid_set?(column_set(col))}
   end
 
   def valid_rows?
-    (0..END_INDEX).all? {|row| valid_set?(row_set(row))}
+    (0...END_INDEX).all? {|row| valid_set?(row_set(row))}
   end
 
   def valid_squares?
@@ -93,17 +93,5 @@ class Sudoku
 
   def to_compact_s
     @board.map {|row| row.join("")}.join("")
-  end
-
-  def usable_cells
-    @board.flatten.select(&:usable?)
-  end
-
-  def each_coord
-    (0..END_INDEX).each do |row|
-      (0..END_INDEX).each do |col|
-        yield(row, col)
-      end
-    end
   end
 end
